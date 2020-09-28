@@ -6,6 +6,23 @@ const app = express();
 var http = require("http").createServer(app);
 var io = require("socket.io")(http);
 
+const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const mongoose = require("mongoose");
+const passportlocalMongoose = require('passport-local-mongoose')
+
+mongoose.connect("mongodb://localhost:27017/ChatusersDB", {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+    })
+    .then(() => console.log('DB Connected!')) // promise resolved
+    .catch(err => {
+        console.log(error in connecting);
+    });
+
+
+
 app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({
     extended: true
@@ -14,6 +31,29 @@ app.use(express.urlencoded({
 app.use(bodyParser.urlencoded({           // used to get posted date on page 
     extended: true
 }));
+
+app.use(passport.initialize());
+
+mongoose.set("useCreateIndex", true);
+
+const UserSchema = new mongoose.Schema({
+  Username : {
+    type : String
+  },
+  Password : {
+    type : String
+  }
+});
+
+UserSchema.plugin(passportlocalMongoose);
+
+const User = new mongoose.model("User", UserSchema);
+
+passport.use(new LocalStrategy(User.authenticate()))
+
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
+
    
    var users = "";
 
@@ -22,18 +62,68 @@ app.use(bodyParser.urlencoded({           // used to get posted date on page
     var status = 0;
 
  app.get('/', (req, res) =>{
-  res.sendFile(__dirname + "/public/login.html")
+  res.sendFile(__dirname + "/public/Login.html")
 });
 
 app.get("/chat_page", (req, res) => {
   res.sendFile(__dirname + "/public/chat_page.html");
 });
 
- app.post("/", (req, res) => {
-         users = req.body.username;
-          status = 1;
-         //  console.log("kitni baar");
-        res.redirect('/chat_page');
+//  app.post("/", (req, res) => {
+//          users = req.body.username;
+//           status = 1;
+//          //  console.log("kitni baar");
+//         res.redirect('/chat_page');
+// });
+app.get('/login', (req, res) => {
+  if(req.isAuthenticated()){
+      res.redirect('/')
+  }
+  else {
+    res.sendFile(__dirname + "/public/Login.html");
+  }
+})
+
+app.get('/register', (req, res) => {
+  if(req.isAuthenticated()){
+      res.redirect('/')
+  }
+  else {
+    res.sendFile(__dirname + "/public/Register.html");
+  }
+})
+
+app.post('/register', (req, res) => {
+  User.register(new User({username : req.body.username}), req.body.password, function(err, user){
+      if(err){
+          console.log(err)
+          res.redirect('/register')
+      }
+      else{
+          passport.authenticate('local')(req, res, function(){
+            res.redirect('/chat_page');
+          })
+      }
+  })
+});
+
+app.post('/login', (req, res) => {
+  const user = new User({
+      username : req.body.username,
+      password : req.body.password
+  })
+
+  req.login(user, function(err) {
+      if(err){
+          console.log(err)
+      }
+      else{
+          passport.authenticate('local')(req, res, function(){
+            users = req.body.username;
+            res.redirect('/chat_page');
+          })
+      }
+  })
 });
        
 
