@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <link rel="stylesheet" href="mainpage.css">
+</head>
+<body>
+    <div id="main-body">
+        <div id="users-bar">
+            <nav id="navbar1">
+                <a href="user-id" class="navlink" id="user-id">You</a>
+                <a class="nav-link" href="#user1">Keshav</a>
+                <a class="nav-link" href="#user2">Aditya</a>
+                <a class="nav-link" href="#user3">Orducky</a>
+                <a class="nav-link" href="#user4">Shinigami</a>
+                <a class="nav-link" href="#user5">Ritik</a>
+                <a class="nav-link" href="#user6">NoobMaster12</a>
+                <a class="nav-link" href="#user7">Naruto</a>
+                <a class="nav-link" href="#user8">Rajat</a>
+                <a class="nav-link" href="#user9">Kirito</a>
+                <a class="nav-link" href="#user10">Kazuto</a>
+            </nav>
+        </div>
+        <div id="chat-panel">
+            <div id="name-settings">
+                <div id="user-icon">
+                    
+                </div>
+            </div>
+            <div id="chats"></div>
+            <div id="type-message">
+                <form action="/" method="POST">
+                    <input type="text" id="message" placeholder="Type a message" name = "message" autocomplete="off">
+
+        
+                </form>
+               
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+    <!-- <script src = "./script1.js"></script> -->
+
+</body>
+
+</html>

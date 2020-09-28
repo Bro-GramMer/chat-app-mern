@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+       * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial;}
+      #container  {width : 80vw; height : 70vh;}
+      form { background: #000; padding: 3px; position: relative; margin-top : 500px; margin-left: 300px; width : 80%;}
+      form input { border: 0; padding: 10px; width: 50%; margin-right: 0.5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+  <body>
+    <div id ="container"> 
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m1" autocomplete="off" placeholder ="type a message" />
+      <input id="m2" autocomplete="off" placeholder = "touser" /><button>Send</button>
+    </form>
+    </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+         const socket = io();
+         $('form').submit(function(e){
+          e.preventDefault();
+          var msg = $('#m1').val();
+          var touser = $('#m2').val();
+          socket.emit('message',({ new_msg : msg,new_user : touser}));
+          $('#messages').append($('<li>').text(msg + "  [ sent to ->  " + touser + "  ]"));
+          $('#m1').val('');
+          $('#m2').val('');
+           return false;
+        });
+        socket.on('new message', function(received_msg){
+          alert(received_msg.msg);
+          $('#messages').append($('<li>').text(received_msg.msg + " [ received from -> "+ received_msg.from + "]"));
+          window.scrollTo(0, document.body.scrollHeight);
+          });
+      });
+    </script>
+
+  </body>
+</html>
