@@ -32,9 +32,25 @@ app.use(bodyParser.urlencoded({           // used to get posted date on page
     extended: true
 }));
 
-app.use(passport.initialize());
+
 
 mongoose.set("useCreateIndex", true);
+
+const sessionMiddleware = session({
+  name : "sid",
+  cookie : {
+      maxAge : 1000*6000,
+      sameSite : true,
+  },
+  secret : "mysecret",
+  resave : false,
+  saveUninitialized : false
+});
+
+app.use(sessionMiddleware);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 const UserSchema = new mongoose.Schema({
   Username : {
@@ -62,10 +78,12 @@ passport.deserializeUser(User.deserializeUser())
     var status = 0;
 
  app.get('/', (req, res) =>{
-  res.sendFile(__dirname + "/public/Login.html")
+  res.redirect("/login");
 });
 
 app.get("/chat_page", (req, res) => {
+  console.log("User is : "+req.user.username);
+  users = req.user.username;
   res.sendFile(__dirname + "/public/chat_page.html");
 });
 
@@ -77,7 +95,7 @@ app.get("/chat_page", (req, res) => {
 // });
 app.get('/login', (req, res) => {
   if(req.isAuthenticated()){
-      res.redirect('/')
+      res.redirect('/chat_page')
   }
   else {
     res.sendFile(__dirname + "/public/Login.html");
@@ -86,7 +104,7 @@ app.get('/login', (req, res) => {
 
 app.get('/register', (req, res) => {
   if(req.isAuthenticated()){
-      res.redirect('/')
+      res.redirect('/chat_page')
   }
   else {
     res.sendFile(__dirname + "/public/Register.html");
@@ -101,6 +119,7 @@ app.post('/register', (req, res) => {
       }
       else{
           passport.authenticate('local')(req, res, function(){
+            users = req.body.username;
             res.redirect('/chat_page');
           })
       }
